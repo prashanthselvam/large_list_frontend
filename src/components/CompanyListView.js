@@ -1,20 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link, useParams } from 'react-router-dom';
+import useEndpoint from '../hooks/useEndpoint';
 
 const CompanyListView = () => {
-  let { listId } = useParams();
-  console.log(listId);
   const [companyLists, setCompanyLists] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  console.log(companyLists);
+  const webEndpoint = useEndpoint();
 
   useEffect(() => {
     const fetchCompanyLists = async () => {
       try {
-        const response = await axios.get('http://localhost:8000/api/company-lists/');
+        const response = await axios.get(`${webEndpoint}/api/company-lists/`);
         setCompanyLists(response.data);
         setLoading(false);
       } catch (err) {

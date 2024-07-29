@@ -7,6 +7,7 @@ import CompanySearchToolbar from './CompanySearchToolbar';
 import CompanyTable from './CompanyTable';
 import PaginationControls from './PaginationControls';
 import './CompanySearch.css';
+import useEndpoint from '../../hooks/useEndpoint';
 
 const CompanySearch = () => {
   const { listId } = useParams();
@@ -26,14 +27,15 @@ const CompanySearch = () => {
   const [newListName, setNewListName] = useState('');
   const [creatingNewList, setCreatingNewList] = useState(false);
   const [selectAllInSearch, setSelectAllInSearch] = useState(false);
+  const webEndpoint = useEndpoint();
 
   useEffect(() => {
     const fetchCompanies = async () => {
       setLoading(true);
       try {
         const endpoint = listId
-          ? `http://localhost:8000/api/company-lists/${listId}/companies/`
-          : `http://localhost:8000/api/companies/`;
+          ? `${webEndpoint}/api/company-lists/${listId}/companies/`
+          : `${webEndpoint}/api/companies/`;
         const response = await axios.get(endpoint, {
           params: {
             page: currentPage,
@@ -51,13 +53,13 @@ const CompanySearch = () => {
     };
 
     fetchCompanies();
-  }, [currentPage, pageSize, listId, submittedQuery]);
+  }, [currentPage, pageSize, listId, submittedQuery, webEndpoint]);
 
   useEffect(() => {
     if (listId) {
       const fetchListDetails = async () => {
         try {
-          const response = await axios.get(`http://localhost:8000/api/company-lists/${listId}/`);
+          const response = await axios.get(`${webEndpoint}/api/company-lists/${listId}/`);
           setListDetails(response.data);
         } catch (error) {
           setError(error);
@@ -121,7 +123,7 @@ const CompanySearch = () => {
 
   const fetchLists = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/api/company-lists/');
+      const response = await axios.get(`${webEndpoint}/api/company-lists/`);
       setLists(response.data);
     } catch (error) {
       console.error('Error fetching lists:', error);
@@ -138,7 +140,7 @@ const CompanySearch = () => {
     e.preventDefault();
     if (creatingNewList && newListName) {
       try {
-        const response = await axios.post('http://localhost:8000/api/company-lists/create-with-companies/', {
+        const response = await axios.post(`${webEndpoint}/api/company-lists/create-with-companies/`, {
           name: newListName,
           companies: selectAllInSearch ? [] : selectedCompanies, // Pass empty array for companies if selecting all in search
           search: selectAllInSearch ? submittedQuery : '', // Pass search query if selecting all in search
@@ -155,7 +157,7 @@ const CompanySearch = () => {
       }
     } else if (selectedList) {
       try {
-        const response = await axios.post(`http://localhost:8000/api/company-lists/${selectedList}/add-companies/`, {
+        const response = await axios.post(`${webEndpoint}/api/company-lists/${selectedList}/add-companies/`, {
           company_ids: selectAllInSearch ? [] : selectedCompanies, // Pass empty array for company_ids if selecting all in search
           search: selectAllInSearch ? submittedQuery : '', // Pass search query if selecting all in search
         });
